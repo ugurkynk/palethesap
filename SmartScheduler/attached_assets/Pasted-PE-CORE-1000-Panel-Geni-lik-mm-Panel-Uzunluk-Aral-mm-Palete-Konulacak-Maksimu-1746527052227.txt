@@ -1,0 +1,155 @@
+PE CORE			
+			
+"1000 Panel Genişlik
+(mm)"	Panel Uzunluk Aralığı  (mm)		"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min.Uzunluk(mm)	Max.Uzunluk(mm)	
+1000	1500	1999	100
+1000	2000	2499	100
+1000	2500	2999	85
+1000	3000	3199	75
+1000	3200	3499	75
+1000	3500	3999	65
+1000	4000	4499	60
+1000	4500	4999	50
+1000	5000	5499	40
+1000	5500	6000	30
+1000	6001	6400	25
+			
+"1250 Panel Genişlik
+(mm)"	Panel Uzunluk Aralığı  (mm)		"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min. Uzunluk (mm)	Max. Uzunluk (mm)	
+1250	1500	1999	100
+1250	2000	2499	90
+1250	2500	2999	80
+1250	3000	3199	75
+12S0	3200	3499	75
+1250	3500	3999	60
+1250	4000	4499	50
+1250	4500	4999	45
+1250	5000	5499	40
+1250	5500	6000	30
+1250	6001	6400	25
+			
+"1500 Panel Genişlik
+(mm)"	Panel Uzunluk Aralığı  (mm)		"Palete Konulacak
+Maksimum  Panel
+Adeti"
+	Min. Uzunluk (mm)	Max. Uzunluk mm)	
+1500	1500	1999	100
+1500	2000	2499	90
+1500	2500	2999	75
+1500	3000	3199	70
+1500	3200	3499	65
+1500	3500	3999	60
+1500	4000	4499	50
+1500	4500	4999	45
+1500	5000	5499	40
+1500	5500	6000	30
+1500	6001	6400	25
+
+FR CORE			
+			
+"1000 Panel Genişlik
+(mm)"	                 Panel Uzunluk Aradığı  (mm)		"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min. Uzunluk (mm)	Max. Uzunluk mm)	
+1000	1500	1999	90
+1000	2000	2499	80
+1000	2500	2999	70
+1000	3000	3199	65
+1000	3200	3499	60
+1000	3500	3999	50
+1000	4000	4499	45
+1000	4500	4999	40
+1000	5000	5499	35
+1000	5500	6000	30
+1000	6001	6400	25
+			
+1250 Panel Genişlik (mm)	Panel Uzunluk Aralığı  (mm)		"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min. Uzunluk (mm)	Max. Uzunluk mm)	
+1250	1500	1999	90
+1250	2000	2499	80
+1250	2500	2999	70
+1250	3000	3199	65
+1250	3200	3499	60
+1250	3500	3999	50
+1250	4000	4499	45
+1250	4500	4999	40
+1250	5000	5499	35
+1250	5500	6000	30
+1250	6001	6400	25
+			
+"1500 Panel Genişlik
+(mm)"	Panel Uzunluk Aralığ   (mm)		"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min. Uzunluk (mm)	Max. Uzunluk mm)	
+1500	1500	1999	80
+1500	2000	2499	70
+1500	2500	2999	60
+1500	3000	3199	55
+1500	3200	3499	50
+1500	3500	3999	45
+1500	4000	4499	35
+1500	4500	4999	35
+1500	5000	5499	30
+1500	5500	6000	25
+1500	6001	6400	20
+
+A2 CORE				
+				
+"1000 Panel Genişlik
+(mm)"	Panel Uzunluk Aralığı  (mm)			"Palete Konulacak
+Maksimum Panel Adeti"
+	Min. Uzunluk (mm)		Max. Uzunluk mm)	
+1000	1500		1999	75
+1000	2000		2499	60
+1000	2500		2999	50
+1000	3000		3199	47
+1000	3200		3499	43
+1000	3500		3999	38
+1000	4000		4499	33
+1000	4500		4999	30
+1000	5000		5499	27
+1000	5500		6000	20
+1000	6001		6400	17
+				
+"1250 Panel Genişlik
+(mm)"	Panel Uzunluk Aralığı  (mm)			"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min. Uzunluk (mm)		Max. Uzunluk mm)	
+1250	1500		1999	60
+1250	2000		2499	48
+1250	2500		2999	40
+1250	3000		3199	38
+1250	3200		3499	34
+1250	3500		3999	30
+1250	4000		4499	27
+1250	4500		4999	24
+1250	5000		5499	22
+1250	5500		6000	20
+1250	6001		6400	17
+				
+1500 Panel Genişlik (mm)	Panel Uzunluk Aralığı  (mm)			"Palete Konulacak
+Maksimum Panel
+Adeti"
+	Min. Uzunluk (mm)		Max. Uzunluk mm)	
+1500	1500		1999	50
+1500	2000		2499	40
+1500	2500		2999	33
+1500	3000		3199	31
+1500	3200		3499	29
+1S00	3500		3999	25
+1500	4000		4499	22
+1500	4500		4999	20
+1500	5000		5499	18
+1500	5500		6000	17
+1500	6001		6400	16

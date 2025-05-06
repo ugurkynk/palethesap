@@ -1,0 +1,373 @@
+import { useRef, useEffect } from "react";
+import { LoadingPlanData, PanelData } from "@shared/schema";
+import { getPanelColorHex } from "@/lib/utils";
+
+type PanelGroupMap = {
+  [key: number]: any[];
+};
+
+interface VisualizationProps {
+  data: LoadingPlanData;
+  panels: PanelData[];
+}
+
+export default function Visualization({ data, panels }: VisualizationProps) {
+  const topViewRef = useRef<HTMLDivElement>(null);
+  const sideViewRef = useRef<HTMLDivElement>(null);
+  
+  // Üst Görünüm oluştur - (Kuşbakışı - panel görsellemesi için)
+  useEffect(() => {
+    // Erken çıkış kontrolü
+    if (!topViewRef.current || !data || !data.pallets || !Array.isArray(data.pallets)) {
+      return;
+    }
+    
+    // Daha güvenli bir şekilde boşalt
+    const container = topViewRef.current;
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    
+    // Araç hatlarını oluştur
+    const vehicleOutline = document.createElement('div');
+    vehicleOutline.className = 'vehicle-outline';
+    vehicleOutline.style.width = '90%';
+    vehicleOutline.style.height = '90%';
+    vehicleOutline.style.top = '5%';
+    vehicleOutline.style.left = '5%';
+    vehicleOutline.style.position = 'absolute';
+    vehicleOutline.style.border = '2px solid #333';
+    vehicleOutline.style.borderRadius = '4px';
+    vehicleOutline.style.backgroundColor = '#f8f9fa';
+    
+    // Zemin oluştur
+    const vehicleFloor = document.createElement('div');
+    vehicleFloor.className = 'vehicle-floor';
+    vehicleFloor.style.position = 'absolute';
+    vehicleFloor.style.width = '100%';
+    vehicleFloor.style.height = '100%';
+    vehicleFloor.style.backgroundColor = '#eaeaea';
+    vehicleFloor.style.borderRadius = '2px';
+    vehicleOutline.appendChild(vehicleFloor);
+    
+    // Başlık ekle
+    const topViewTitle = document.createElement('div');
+    topViewTitle.style.position = 'absolute';
+    topViewTitle.style.top = '-30px';
+    topViewTitle.style.left = '5%';
+    topViewTitle.style.width = '90%';
+    topViewTitle.style.textAlign = 'center';
+    topViewTitle.style.fontWeight = 'bold';
+    topViewTitle.style.fontSize = '14px';
+    topViewTitle.textContent = 'Kuşbakışı Görünüm';
+    container.appendChild(topViewTitle);
+    
+    // Paletleri ekle - örnek görseldeki düzene uygun yerleştir
+    const palletsCopy = [...data.pallets]; 
+    
+    // Panel tiplerine göre grupla 
+    const groupedByPanelType: PanelGroupMap = {};
+    palletsCopy.forEach(pallet => {
+      if (!groupedByPanelType[pallet.panelId]) {
+        groupedByPanelType[pallet.panelId] = [];
+      }
+      groupedByPanelType[pallet.panelId].push(pallet);
+    });
+    
+    // Her panel tipi için orta konumları hesapla
+    const panelTypeKeys = Object.keys(groupedByPanelType);
+    const segmentWidth = 80 / panelTypeKeys.length; // Her panel tipi için bir segment
+    
+    // Her panel tipi için yerleşim oluştur
+    panelTypeKeys.forEach((panelTypeId, typeIndex) => {
+      const panelTypeGroup = groupedByPanelType[panelTypeId];
+      const panel = panels.find(p => p.id === Number(panelTypeId));
+      if (!panel) return; // Eşleşen panel yoksa atla
+      
+      // Her panel tipi için orta konum 
+      const centerPosition = 10 + (segmentWidth * typeIndex) + (segmentWidth / 2);
+      
+      // Maximum 2 adet palet yan yana (piramit/koni görünümü için)
+      const maxPalletsInRow = 2;
+      const palletWidth = Math.min(segmentWidth * 0.4, 15);
+      
+      // Her palet için
+      panelTypeGroup.slice(0, 8).forEach((pallet, index) => {
+        const rowIndex = Math.floor(index / maxPalletsInRow);
+        const colIndex = index % maxPalletsInRow;
+        
+        const palletElement = document.createElement('div');
+        palletElement.className = 'pallet';
+        palletElement.style.position = 'absolute';
+        palletElement.style.border = '1px solid #333';
+        palletElement.style.borderRadius = '2px';
+        palletElement.style.fontSize = '9px';
+        palletElement.style.fontWeight = 'bold';
+        palletElement.style.color = '#333';
+        palletElement.style.padding = '2px';
+        palletElement.style.overflow = 'hidden';
+        palletElement.style.textAlign = 'center';
+        
+        // Araç boyutları
+        const vehicleWidth = data.vehicleWidth || 235; 
+        const vehicleLength = data.vehicleLength || 590;
+        
+        // Palet boyutları için orantılı genişlik ve yükseklik
+        const widthPercent = palletWidth;
+        const heightPercent = (pallet.palletLength / 1000) * 20; // Yüksekliği sınırla
+        
+        // Konumları hesapla - koni şeklinde yerleştirme için
+        const spacing = palletWidth * 1.2;
+        const leftOffset = colIndex * spacing - (spacing / 2);
+        const leftPercent = centerPosition + leftOffset - (palletWidth / 2);
+        
+        // Satırlara göre yükseklik ayarla, üst üste yerleştirme için
+        const rowSpacing = 5 + (rowIndex * 20);
+        const topPercent = 15 + rowSpacing;
+        
+        palletElement.style.width = `${widthPercent}%`;
+        palletElement.style.height = `${heightPercent}%`;
+        palletElement.style.top = `${topPercent}%`;
+        palletElement.style.left = `${leftPercent}%`;
+      
+        // Panel rengine göre arkaplan rengini ayarla
+        const bgColor = getPanelColorHex(panel.color);
+        palletElement.style.backgroundColor = `${bgColor}BF`; // Transparanlık ekle
+        
+        // Panel bilgisini ekle - kuş bakışı görünümünde panel detaylarını göster
+        palletElement.innerHTML = `
+          ${panel.color}<br>
+          ${panel.width}x${panel.length} mm<br>
+          ${panel.core} - ${pallet.count} adet
+        `;
+        
+        // Her paletin bir alt kumaşı olarak "palet" ekle
+        const palletBase = document.createElement('div');
+        palletBase.style.position = 'absolute';
+        palletBase.style.bottom = '0';
+        palletBase.style.left = '0';
+        palletBase.style.width = '100%';
+        palletBase.style.height = '20%';
+        palletBase.style.backgroundColor = '#A52A2A'; // Kahverengi palet rengi
+        palletBase.style.borderTop = '1px dashed #333';
+        palletBase.style.boxSizing = 'border-box';
+        palletBase.style.zIndex = '1';
+        palletElement.appendChild(palletBase);
+        
+        // Paletlerde çapraz çizgi ekle (görsel olarak daha gerçekçi gözükmesi için)
+        const palletCross1 = document.createElement('div');
+        palletCross1.style.position = 'absolute';
+        palletCross1.style.bottom = '0';
+        palletCross1.style.left = '0';
+        palletCross1.style.width = '100%';
+        palletCross1.style.height = '20%';
+        palletCross1.style.borderBottom = '2px solid #8B4513';
+        palletCross1.style.zIndex = '2';
+        palletBase.appendChild(palletCross1);
+        
+        const palletCross2 = document.createElement('div');
+        palletCross2.style.position = 'absolute';
+        palletCross2.style.bottom = '0';
+        palletCross2.style.left = '33%';
+        palletCross2.style.width = '2px';
+        palletCross2.style.height = '100%';
+        palletCross2.style.backgroundColor = '#8B4513';
+        palletCross2.style.zIndex = '2';
+        palletBase.appendChild(palletCross2);
+        
+        const palletCross3 = document.createElement('div');
+        palletCross3.style.position = 'absolute';
+        palletCross3.style.bottom = '0';
+        palletCross3.style.left = '66%';
+        palletCross3.style.width = '2px';
+        palletCross3.style.height = '100%';
+        palletCross3.style.backgroundColor = '#8B4513';
+        palletCross3.style.zIndex = '2';
+        palletBase.appendChild(palletCross3);
+        
+        vehicleOutline.appendChild(palletElement);
+      });
+    
+    container.appendChild(vehicleOutline);
+    
+  }, [JSON.stringify(data?.pallets), JSON.stringify(panels)]);
+  
+  // Yan Görünüm oluştur - (Araç ve paletlerin yandan görünümü)
+  useEffect(() => {
+    // Erken çıkış kontrolü
+    if (!sideViewRef.current || !data || !data.pallets || !Array.isArray(data.pallets)) {
+      return;
+    }
+    
+    // Daha güvenli bir şekilde boşalt
+    const container = sideViewRef.current;
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    
+    // Başlık ekle
+    const sideViewTitle = document.createElement('div');
+    sideViewTitle.style.position = 'absolute';
+    sideViewTitle.style.top = '-30px';
+    sideViewTitle.style.left = '5%';
+    sideViewTitle.style.width = '90%';
+    sideViewTitle.style.textAlign = 'center';
+    sideViewTitle.style.fontWeight = 'bold';
+    sideViewTitle.style.fontSize = '14px';
+    sideViewTitle.textContent = 'Yan Görünüm';
+    container.appendChild(sideViewTitle);
+    
+    // Araç hatlarını oluştur
+    const vehicleOutline = document.createElement('div');
+    vehicleOutline.className = 'vehicle-outline';
+    vehicleOutline.style.width = '90%';
+    vehicleOutline.style.height = '90%';
+    vehicleOutline.style.top = '5%';
+    vehicleOutline.style.left = '5%';
+    vehicleOutline.style.position = 'absolute';
+    vehicleOutline.style.border = '2px solid #333';
+    vehicleOutline.style.borderRadius = '4px';
+    vehicleOutline.style.backgroundColor = '#f8f9fa';
+    
+    // Zemin oluştur
+    const vehicleFloor = document.createElement('div');
+    vehicleFloor.className = 'vehicle-floor';
+    vehicleFloor.style.position = 'absolute';
+    vehicleFloor.style.width = '100%';
+    vehicleFloor.style.height = '100%';
+    vehicleFloor.style.backgroundColor = '#eaeaea';
+    vehicleFloor.style.borderRadius = '2px';
+    vehicleOutline.appendChild(vehicleFloor);
+    
+    // Paletleri ekle (Yan görünüm için yükseklik önemli)
+    const palletsCopy = [...data.pallets];
+    
+    // Yüksekliklere göre sırala (üst üste gelmemesi için)
+    // Önce panel ID'sine göre sırala, aynı panel tipler bir arada olsun
+    palletsCopy.sort((a, b) => {
+      // Önce panel ID'sine göre grupla
+      if (a.panelId !== b.panelId) {
+        return a.panelId - b.panelId;
+      }
+      // Aynı panel ID'li paletleri y pozisyonuna göre sırala
+      return a.y - b.y;
+    });
+    
+    palletsCopy.forEach((pallet) => {
+      const panelId = pallet.panelId;
+      const panel = panels.find(p => p.id === panelId);
+      if (!panel) return;
+      
+      const palletElement = document.createElement('div');
+      palletElement.className = 'pallet-side';
+      palletElement.style.position = 'absolute';
+      palletElement.style.border = '1px solid #333';
+      palletElement.style.borderRadius = '2px';
+      palletElement.style.fontSize = '9px';
+      palletElement.style.fontWeight = 'bold';
+      palletElement.style.color = '#333';
+      palletElement.style.padding = '2px';
+      palletElement.style.overflow = 'hidden';
+      
+      // Araç boyutları
+      const vehicleLength = data.vehicleLength || 590; // Varsayılan olarak 590 cm
+      const vehicleHeight = data.vehicleHeight || 239; // Varsayılan olarak 239 cm
+      
+      // Palet uzunluğunu araç uzunluğuna oranla
+      const palletLengthRatio = (pallet.palletLength / 10) / vehicleLength;
+      
+      // Palet yüksekliği (palet + paneller)
+      const stackHeightRatio = pallet.stackHeight / vehicleHeight;
+      
+      // Palet pozisyonu - yan görünümde aynı tip panelleri yan yana düzenli göster
+      // Her panel tipi için x pozisyonunu hesapla (bu durumda offset ile)
+      let panelIndex = 0;
+      let totalPanelsOfSameType = 0;
+      
+      // Panel IDs göre palet sayısını bul ve pozisyonu ayarla
+      const samePanelPallets = palletsCopy.filter(p => p.panelId === pallet.panelId);
+      totalPanelsOfSameType = samePanelPallets.length;
+      panelIndex = samePanelPallets.findIndex(p => p === pallet);
+      
+      // Her panel tipinin genişliği için max % hesapla
+      const maxWidthPerType = 80 / data.panelSummary.length;
+      // Panel tipi başına offset hesapla
+      const panelTypeOffset = palletsCopy.findIndex(p => p.panelId === pallet.panelId) === 0 ? 5 : 
+                              maxWidthPerType * palletsCopy.filter(p => p.panelId < pallet.panelId).length;
+      
+      // Panel tipinde palet başına genişlik
+      const widthPerPallet = maxWidthPerType / totalPanelsOfSameType;
+      
+      // Pozisyon hesapla
+      const leftPercent = panelTypeOffset + panelIndex * widthPerPallet;
+      const bottomPercent = 5; // Alt kenardan 5% boşluk
+      
+      // Palet boyutları - yan görünümde daha dar göster
+      const widthPercent = Math.min(widthPerPallet * 0.8, 10); // Genişlik sınırlı
+      // Maksimum yükseklik: Panellerin 6 kattan fazla istiflenmemesi için
+      const maxAllowedHeight = Math.min(stackHeightRatio * 90, 90); // Maksimum %90 yükseklik
+      const heightPercent = maxAllowedHeight; // Yükseklik
+      
+      palletElement.style.left = `${leftPercent}%`;
+      palletElement.style.bottom = `${bottomPercent}%`;
+      palletElement.style.width = `${widthPercent}%`;
+      palletElement.style.height = `${heightPercent}%`;
+      
+      // Panel rengine göre arkaplan
+      const bgColor = getPanelColorHex(panel.color);
+      palletElement.style.backgroundColor = `${bgColor}BF`;
+      
+      // Panel bilgisi
+      palletElement.innerHTML = `
+        ${panel.color}<br>
+        Yükseklik: ${pallet.stackHeight} cm<br>
+        ${pallet.count} adet
+      `;
+      
+      // Palet tabanını ekle
+      const palletBase = document.createElement('div');
+      palletBase.style.position = 'absolute';
+      palletBase.style.bottom = '0';
+      palletBase.style.left = '0';
+      palletBase.style.width = '100%';
+      palletBase.style.height = `${(20 / pallet.stackHeight) * 100}%`;
+      palletBase.style.minHeight = '10%';
+      palletBase.style.maxHeight = '20%';
+      palletBase.style.backgroundColor = '#A52A2A';
+      palletBase.style.borderTop = '1px dashed #333';
+      palletBase.style.zIndex = '1';
+      palletElement.appendChild(palletBase);
+      
+      vehicleOutline.appendChild(palletElement);
+    });
+    
+    container.appendChild(vehicleOutline);
+    
+  }, [JSON.stringify(data?.pallets), JSON.stringify(panels)]);
+  
+  return (
+    <div className="grid grid-cols-1 gap-6">
+      {/* Kuşbakışı görünüm */}
+      <div>
+        <div 
+          ref={topViewRef}
+          className="loading-plan-top-view"
+          style={{ height: '350px', width: '100%', position: 'relative' }}
+        >
+          {/* Kuşbakışı görünüm içeriği dinamik olarak eklenecek */}
+        </div>
+      </div>
+      
+      {/* Yan görünüm */}
+      <div>
+        <div 
+          ref={sideViewRef}
+          className="loading-plan-side-view"
+          style={{ height: '350px', width: '100%', position: 'relative' }}
+        >
+          {/* Yan görünüm içeriği dinamik olarak eklenecek */}
+        </div>
+      </div>
+    </div>
+  );
+}
